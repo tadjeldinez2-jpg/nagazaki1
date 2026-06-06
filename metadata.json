@@ -1,0 +1,8 @@
+{
+  "name": "Jack -- 3D Creator",
+  "description": "3D Creator portfolio landing page for Nagazaki featuring rich interactive experiences, scroll-driven elements, and a sleek dark layout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
