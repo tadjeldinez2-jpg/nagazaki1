@@ -51,11 +51,15 @@ export const HeroSection: React.FC = () => {
           enablejsapi: 1,
           disablekb: 1,
           fs: 0,
-          modestbranding: 1
+          modestbranding: 1,
+          vq: "hd1080"
         },
         events: {
           onReady: (event: any) => {
             event.target.mute();
+            if (typeof event.target.setPlaybackQuality === "function") {
+              event.target.setPlaybackQuality("hd1080");
+            }
             event.target.playVideo();
           },
           onStateChange: (event: any) => {
@@ -192,11 +196,11 @@ export const HeroSection: React.FC = () => {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 100vw;
-          height: 56.25vw;
-          min-height: 100vh;
-          min-width: 177.77vh;
-          transform: translate(-50%, -50%);
+          width: 115vw;
+          height: 64.6875vw;
+          min-height: 115vh;
+          min-width: 204.43vh;
+          transform: translate(-50%, -50%) scale(1.25);
           pointer-events: none;
         }
       `}</style>
