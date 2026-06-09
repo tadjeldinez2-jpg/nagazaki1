@@ -240,14 +240,13 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const projectItemsRef = useRef<(HTMLLIElement | null)[]>([]);
 
-  // Preload images
+  // Lazy load images on-demand as they are hovered
   useEffect(() => {
-    PROJECTS_DATA.forEach(project => {
-      if (project.image) {
-        const img = new Image();
-        img.src = project.image;
-      }
-    });
+    // Only preload the first active project image immediately
+    if (PROJECTS_DATA.length > 0 && PROJECTS_DATA[0].image) {
+      const img = new Image();
+      img.src = PROJECTS_DATA[0].image;
+    }
   }, [PROJECTS_DATA]);
 
   // Start idle animation loop
@@ -328,7 +327,7 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
         bg.style.transition = "none";
         bg.style.transform = isMobile ? "none" : "scale(1.08)";
         bg.style.backgroundImage = `url(${imageUrl})`;
-        bg.style.opacity = "1"; // Highly visible atmospheric full-cover image at maximum high quality
+        bg.style.opacity = isMobile ? "0.2" : "1"; // Highly visible atmospheric full-cover image at maximum high quality
         
         const frame1 = requestAnimationFrame(() => {
           const frame2 = requestAnimationFrame(() => {
@@ -336,9 +335,11 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
               if (isMobile) {
                 bg.style.transition = "opacity 0.7s ease-out";
                 bg.style.transform = "none";
+                bg.style.opacity = "0.2";
               } else {
                 bg.style.transition = "opacity 0.7s ease-out, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)";
                 bg.style.transform = "scale(1.0)";
+                bg.style.opacity = "1";
               }
             }
           });
@@ -405,7 +406,7 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
   }, [startIdleTimer, stopIdleTimer, stopIdleAnimation]);
 
   return (
-    <div className="music-portfolio-wrapper relative w-full bg-[#060608] min-h-[550px] rounded-3xl overflow-hidden border border-zinc-900 px-6 sm:px-12 py-12 flex flex-col justify-between">
+    <div className="music-portfolio-wrapper relative w-full bg-[#060608]/95 backdrop-blur-sm min-h-[400px] sm:min-h-[550px] rounded-3xl overflow-hidden border border-zinc-900/80 px-4 sm:px-12 py-8 sm:py-12 flex flex-col justify-between">
       {/* Immersive background artwork container */}
       <div 
         ref={backgroundRef}
@@ -418,8 +419,8 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
           imageRendering: "auto"
         }}
       />
-      {/* Clear overlay for crisp project visuals */}
-      <div className="pointer-events-none absolute inset-0 bg-transparent z-0" />
+      {/* Clear overlay for crisp project visuals - optimized for mobile contrast */}
+      <div className="pointer-events-none absolute inset-0 bg-black/40 sm:bg-transparent z-0 transition-all duration-500" />
 
       {/* Main interactive directory table */}
       <main 

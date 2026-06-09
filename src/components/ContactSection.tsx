@@ -14,9 +14,31 @@ export const ContactSection: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
 
+  const [isIntersected, setIsIntersected] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsIntersected(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" } // trigger loading slightly before view
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isIntersected) return;
+
     const video = videoRef.current;
     if (!video) return;
 
@@ -79,6 +101,7 @@ export const ContactSection: React.FC = () => {
   return (
     <section
       id="contact"
+      ref={sectionRef}
       className="relative min-h-screen bg-[#070709] border-t border-zinc-900/60 text-[#D7E2EA] px-6 sm:px-12 py-24 pb-36 overflow-hidden flex flex-col justify-center"
     >
       {/* Dynamic Streaming Video Background */}

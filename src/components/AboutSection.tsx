@@ -1,9 +1,30 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FadeIn } from "./FadeIn";
 import { AnimatedText } from "./AnimatedText";
 import { ContactButton } from "./ContactButton";
 
 export const AboutSection: React.FC = () => {
+  const [isIntersected, setIsIntersected] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsIntersected(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "250px" } // trigger loading before user arrives
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   const handleScrollToContact = () => {
     // We can show a contact popup or scroll somewhere, let's scroll to projects or smooth alert
     const contactSection = document.getElementById("contact");
@@ -18,6 +39,7 @@ export const AboutSection: React.FC = () => {
   return (
     <section
       id="about"
+      ref={sectionRef}
       className="relative min-h-screen bg-[#0C0C0C] px-5 sm:px-8 md:px-10 py-20 flex flex-col justify-center items-center overflow-hidden"
     >
       {/* 4 DECORATIVE 3D IMAGES POSITIONED ABSOLUTELY */}
@@ -72,15 +94,19 @@ export const AboutSection: React.FC = () => {
       {/* CENTRALIZED TEXT CONTAINER WITH SECTOR GAPS */}
       <div className="flex flex-col items-center justify-center max-w-[640px] z-20 w-full relative overflow-hidden rounded-[20px] sm:rounded-[28px] border border-white/10 px-4 py-8 sm:px-10 sm:py-12 md:px-12 md:py-16 shadow-2xl">
         {/* Background Video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_080021_d598092b-c4c2-4e53-8e46-94cf9064cd50.mp4"
-        />
+        {isIntersected ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_080021_d598092b-c4c2-4e53-8e46-94cf9064cd50.mp4"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[#0C0C0C] z-0" />
+        )}
 
         {/* Custom elegant overlay to ensure elite readability */}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-0" />
