@@ -10,6 +10,14 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
 
+  // Buffer and gameplay coordination for the main video
+  const [isVideoHalfLoaded, setIsVideoHalfLoaded] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [safetyTimeoutReached, setSafetyTimeoutReached] = useState(false);
+  const [staticAssetsLoaded, setStaticAssetsLoaded] = useState(false);
+
+  const allReadyRef = React.useRef(false);
+
   // Check sessionStorage immediately on mount
   useEffect(() => {
     const played = sessionStorage.getItem("nagazaki-preloader-played-v2");
@@ -18,6 +26,83 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
       setIsLoaded(true);
     }
   }, []);
+
+  // Failsafe timer (6.5s max cap) to prevent infinite loads on severely slowed cellular networks
+  useEffect(() => {
+    if (hasPlayed) return;
+    const fallbackTimer = setTimeout(() => {
+      setSafetyTimeoutReached(true);
+    }, 6500);
+    return () => clearTimeout(fallbackTimer);
+  }, [hasPlayed]);
+
+  // Synchronize conditions with our active countdown ticker safety reference
+  useEffect(() => {
+    if ((staticAssetsLoaded && isVideoHalfLoaded && isVideoPlaying) || safetyTimeoutReached) {
+      allReadyRef.current = true;
+    }
+  }, [staticAssetsLoaded, isVideoHalfLoaded, isVideoPlaying, safetyTimeoutReached]);
+
+  // Real-time listener checking state of the actual mounted Hero Background video in the DOM
+  useEffect(() => {
+    if (hasPlayed) return;
+
+    let timerId: NodeJS.Timeout | null = null;
+    let videoEl: HTMLVideoElement | null = null;
+
+    const checkVideo = () => {
+      if (!videoEl) {
+        videoEl = document.getElementById("hero-bg-video") as HTMLVideoElement | null;
+        if (videoEl) {
+          videoEl.addEventListener("progress", checkStatus);
+          videoEl.addEventListener("playing", checkStatus);
+          videoEl.addEventListener("timeupdate", checkStatus);
+          videoEl.addEventListener("loadedmetadata", checkStatus);
+        }
+      }
+      checkStatus();
+    };
+
+    const checkStatus = () => {
+      if (!videoEl) return;
+
+      // 1. Validate if video has started playing
+      const isPlaying = videoEl.currentTime > 0.05 && !videoEl.paused && !videoEl.ended && videoEl.readyState >= 2;
+      if (isPlaying) {
+        setIsVideoPlaying(true);
+      }
+
+      // 2. Validate buffered buffer ratio
+      const duration = videoEl.duration;
+      if (duration > 0 && videoEl.buffered.length > 0) {
+        let maxBuffered = 0;
+        for (let i = 0; i < videoEl.buffered.length; i++) {
+          const start = videoEl.buffered.start(i);
+          const end = videoEl.buffered.end(i);
+          // Only combine buffers contiguous with our play stream
+          if (start <= videoEl.currentTime + 1.5) {
+            maxBuffered = Math.max(maxBuffered, end);
+          }
+        }
+        const ratio = maxBuffered / duration;
+        if (ratio >= 0.5) {
+          setIsVideoHalfLoaded(true);
+        }
+      }
+    };
+
+    timerId = setInterval(checkVideo, 150);
+
+    return () => {
+      if (timerId) clearInterval(timerId);
+      if (videoEl) {
+        videoEl.removeEventListener("progress", checkStatus);
+        videoEl.removeEventListener("playing", checkStatus);
+        videoEl.removeEventListener("timeupdate", checkStatus);
+        videoEl.removeEventListener("loadedmetadata", checkStatus);
+      }
+    };
+  }, [hasPlayed]);
 
   // Set up asset preloading and progress interval
   useEffect(() => {
@@ -93,11 +178,17 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
     const timer = setInterval(() => {
       // Calculate active preloading weight
       const preloadingWeight = totalAssets > 0 ? (loadedCount / totalAssets) * 80 : 80;
-      // Synthesize a fluid natural acceleration as assets load
-      targetProgress = Math.min(
-        99,
-        targetProgress + step * (1 + (preloadingWeight / 100) * 1.5)
-      );
+      
+      if (allReadyRef.current) {
+        // Uncap and slide to completion when all items match
+        targetProgress = 100;
+      } else {
+        // Hold progress dynamically at 99% until the hero video is loaded-and-playing
+        targetProgress = Math.min(
+          99,
+          targetProgress + step * (1 + (preloadingWeight / 100) * 1.5)
+        );
+      }
 
       // Smooth step ease tracking
       setProgress((prev) => {
@@ -108,8 +199,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
 
     // Coordinate complete release
     Promise.all([...preloadPromises, fontsPromise]).then(() => {
-      // Accelerate the counter to 100% when everything is loaded
-      targetProgress = 100;
+      setStaticAssetsLoaded(true);
     });
 
     return () => clearInterval(timer);

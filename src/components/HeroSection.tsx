@@ -116,6 +116,7 @@ export const HeroSection: React.FC = () => {
 
       {/* Background Video */}
       <video
+        id="hero-bg-video"
         ref={videoRef}
         autoPlay
         loop
