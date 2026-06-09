@@ -96,11 +96,9 @@ interface ProjectItemProps {
 const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
   ({ project, index, onMouseEnter, onMouseLeave, isActive, isIdle }, ref) => {
     const textRefs = {
-      artist: useRef<HTMLSpanElement>(null),
       album: useRef<HTMLSpanElement>(null),
       category: useRef<HTMLSpanElement>(null),
       label: useRef<HTMLSpanElement>(null),
-      year: useRef<HTMLSpanElement>(null),
     };
 
     useEffect(() => {
@@ -168,28 +166,14 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
           {String(index + 1).padStart(2, '0')}
         </div>
         
-        {/* Artist / Project column */}
-        <div className="col-span-4 md:col-span-3 flex items-center overflow-hidden min-w-0">
-          <span 
-            ref={textRefs.artist} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 truncate max-w-full ${
-              isActive 
-                ? 'bg-amber-300 text-black font-semibold text-xs sm:text-sm uppercase' 
-                : 'text-white tracking-tight text-xs sm:text-sm group-hover/row:text-amber-300'
-            }`}
-          >
-            {project.artist}
-          </span>
-        </div>
-
         {/* Album / Concept column */}
-        <div className="col-span-4 md:col-span-3 flex items-center overflow-hidden min-w-0">
+        <div className="col-span-11 md:col-span-5 flex items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.album} 
             className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono truncate max-w-full ${
               isActive 
                 ? 'bg-amber-300 text-black font-semibold text-xs sm:text-sm uppercase' 
-                : 'text-zinc-300 text-xs sm:text-sm'
+                : 'text-zinc-300 text-xs sm:text-sm group-hover/row:text-amber-300'
             }`}
           >
             {project.album}
@@ -197,7 +181,7 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
         </div>
 
         {/* Category column */}
-        <div className="hidden md:flex col-span-2 items-center overflow-hidden min-w-0">
+        <div className="hidden md:flex col-span-3 items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.category} 
             className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs truncate max-w-full ${
@@ -211,7 +195,7 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
         </div>
 
         {/* Publisher/Label column */}
-        <div className="hidden md:flex col-span-2 items-center overflow-hidden min-w-0">
+        <div className="hidden md:flex col-span-3 items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.label} 
             className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs truncate max-w-full ${
@@ -221,20 +205,6 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
             }`}
           >
             {project.label}
-          </span>
-        </div>
-
-        {/* Year column */}
-        <div className="col-span-3 md:col-span-1 flex items-center justify-end overflow-hidden min-w-0">
-          <span 
-            ref={textRefs.year} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs truncate max-w-full ${
-              isActive 
-                ? 'bg-amber-300 text-black font-semibold uppercase' 
-                : 'text-zinc-400'
-            }`}
-          >
-            {project.year}
           </span>
         </div>
       </li>
@@ -462,11 +432,9 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
         {/* Table Header Description row */}
         <div className="grid grid-cols-12 gap-4 px-4 pb-4 border-b border-zinc-800 text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest select-none">
           <div className="col-span-1">ID</div>
-          <div className="col-span-4 md:col-span-3">Artist / Project</div>
-          <div className="col-span-4 md:col-span-3">Album / Concept</div>
-          <div className="hidden md:block col-span-2">Category</div>
-          <div className="hidden md:block col-span-2">Publisher</div>
-          <div className="col-span-3 md:col-span-1 text-right">Year</div>
+          <div className="col-span-11 md:col-span-5">Album / Concept</div>
+          <div className="hidden md:block col-span-3">Category</div>
+          <div className="hidden md:block col-span-3">Publisher</div>
         </div>
 
         <ul className="project-list divide-y divide-zinc-900" role="list">

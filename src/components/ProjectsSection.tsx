@@ -41,15 +41,6 @@ export const ProjectsSection: React.FC = () => {
       image: "https://motionsites.ai/assets/hero-stellar-ai-v2-preview-DjvxjG3C.gif"
     },
     {
-      id: 5,
-      artist: "",
-      album: "",
-      category: "",
-      label: "",
-      year: "",
-      image: ""
-    },
-    {
       id: 6,
       artist: "NAGAZAKI STUDIO",
       album: "TRANSFORM DATA",

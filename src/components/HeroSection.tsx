@@ -164,11 +164,11 @@ export const HeroSection: React.FC = () => {
         <div
           id="hero-pill"
           ref={pillRef}
-          className="relative pointer-events-auto z-20 glass-pill w-[280px] h-[580px] sm:w-[320px] sm:h-[640px] rounded-full flex flex-col items-center py-10 px-6 sm:py-12 sm:px-8 fade-in shadow-2xl font-plus-jakarta flex-shrink-0"
+          className="relative pointer-events-auto z-20 glass-pill w-[280px] h-auto max-h-[85vh] md:w-[320px] md:h-[640px] rounded-full flex flex-col items-center py-[clamp(1.5rem,4.5vh,2.5rem)] md:py-12 px-6 md:px-8 fade-in shadow-2xl font-plus-jakarta flex-shrink-0"
           style={{ transform: "rotateY(0deg) rotateX(0deg)" }}
         >
           {/* Avatar Circle Container */}
-          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-white/20 shadow-inner mb-8 sm:mb-10 shrink-0">
+          <div className="w-[clamp(6.5rem,15vh,8.5rem)] h-[clamp(6.5rem,15vh,8.5rem)] md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-white/20 shadow-inner mb-[clamp(1rem,3vh,1.75rem)] md:mb-10 shrink-0">
             <img
               alt="Artist Portrait"
               className="w-full h-full object-cover"
@@ -177,9 +177,9 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Typography Cluster */}
-          <div className="flex-grow flex flex-col items-center text-center space-y-4 sm:space-y-6">
+          <div className="flex-none md:flex-grow flex flex-col items-center text-center space-y-[clamp(0.75rem,2.2vh,1.25rem)] md:space-y-6">
             <div>
-              <span className="block text-[9px] sm:text-[10px] font-medium text-white/50 tracking-[0.25em] h-4 mb-1 uppercase">
+              <span className="block text-[9px] sm:text-[10px] font-medium text-white/50 tracking-[0.25em] h-4 mb-0.5 md:mb-1 uppercase">
                 destination
               </span>
               <h1 className="text-3xl sm:text-4xl md:text-[2.6rem] text-white font-light tracking-[0.05em] leading-none select-none uppercase">
@@ -187,7 +187,7 @@ export const HeroSection: React.FC = () => {
               </h1>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-0.5 md:space-y-1">
               <p className="text-[10px] sm:text-[11px] font-medium text-white/70 tracking-[0.15em] uppercase">
                 obsessed with
               </p>
@@ -196,7 +196,7 @@ export const HeroSection: React.FC = () => {
               </p>
             </div>
 
-            <div className="pt-2 sm:pt-4">
+            <div className="pt-1 md:pt-4">
               <p className="text-xs sm:text-sm text-white/60 italic tracking-wider">
                 Inspired
               </p>
@@ -204,7 +204,7 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Footer Action & Branding */}
-          <div className="w-full mt-auto flex flex-col items-center space-y-6 sm:space-y-8">
+          <div className="w-full mt-[clamp(1.25rem,3.5vh,2.25rem)] md:mt-auto flex flex-col items-center space-y-[clamp(0.75rem,2vh,1.25rem)] md:space-y-8">
             <button
               onClick={() => handleScroll("contact")}
               className="group flex items-center justify-center gap-2 bg-[#2a2929] hover:bg-[#383737] active:scale-95 text-white text-[10px] sm:text-[11px] tracking-[0.15em] font-medium px-6 py-2.5 sm:px-8 sm:py-3.5 rounded-full hover:scale-105 transition-all duration-300 cursor-pointer"

@@ -41,11 +41,11 @@ export const FloatingNav: React.FC = () => {
     <>
       <style>{`
         @keyframes marquee {
-          0% { transform: translateX(0%); }
+          0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        .animate-marquee-slow {
-          animation: marquee 35s linear infinite;
+        .animate-marquee-fast {
+          animation: marquee 12s linear infinite;
         }
       `}</style>
 
@@ -132,12 +132,12 @@ export const FloatingNav: React.FC = () => {
                   <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-gradient-to-l from-[#111111] to-transparent z-10" />
                   
                   {/* Double loops to handle native continuous seamless transitions */}
-                  <div className="flex gap-4 whitespace-nowrap animate-marquee-slow">
-                    <span className="text-[8.5px] sm:text-[9.5px] uppercase font-bold text-[#D7E2EA]/15 tracking-widest">
-                      3D DESIGNER • CREATIVE CODER • BRAND CRAFTSMAN • MOTION THINKER • 
+                  <div className="flex w-max whitespace-nowrap animate-marquee-fast">
+                    <span className="text-[8.5px] sm:text-[9.5px] uppercase font-bold text-[#D7E2EA]/15 tracking-widest pr-4 select-none">
+                      3D DESIGNER • CREATIVE CODER • BRAND CRAFTSMAN • MOTION THINKER •
                     </span>
-                    <span className="text-[8.5px] sm:text-[9.5px] uppercase font-bold text-[#D7E2EA]/15 tracking-widest">
-                      3D DESIGNER • CREATIVE CODER • BRAND CRAFTSMAN • MOTION THINKER • 
+                    <span className="text-[8.5px] sm:text-[9.5px] uppercase font-bold text-[#D7E2EA]/15 tracking-widest pr-4 select-none">
+                      3D DESIGNER • CREATIVE CODER • BRAND CRAFTSMAN • MOTION THINKER •
                     </span>
                   </div>
                 </div>
