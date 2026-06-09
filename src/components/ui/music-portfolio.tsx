@@ -327,7 +327,7 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
         bg.style.transition = "none";
         bg.style.transform = isMobile ? "none" : "scale(1.08)";
         bg.style.backgroundImage = `url(${imageUrl})`;
-        bg.style.opacity = isMobile ? "0.2" : "1"; // Highly visible atmospheric full-cover image at maximum high quality
+        bg.style.opacity = isMobile ? "0.55" : "1"; // Vibrant atmospheric glow on mobile, full-cover on desktop
         
         const frame1 = requestAnimationFrame(() => {
           const frame2 = requestAnimationFrame(() => {
@@ -335,7 +335,7 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
               if (isMobile) {
                 bg.style.transition = "opacity 0.7s ease-out";
                 bg.style.transform = "none";
-                bg.style.opacity = "0.2";
+                bg.style.opacity = "0.55";
               } else {
                 bg.style.transition = "opacity 0.7s ease-out, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)";
                 bg.style.transform = "scale(1.0)";
@@ -420,7 +420,7 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
         }}
       />
       {/* Clear overlay for crisp project visuals - optimized for mobile contrast */}
-      <div className="pointer-events-none absolute inset-0 bg-black/40 sm:bg-transparent z-0 transition-all duration-500" />
+      <div className="pointer-events-none absolute inset-0 bg-black/15 sm:bg-transparent z-0 transition-all duration-500" />
 
       {/* Main interactive directory table */}
       <main 

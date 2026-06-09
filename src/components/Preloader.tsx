@@ -1,0 +1,219 @@
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+
+interface PreloaderProps {
+  children: React.ReactNode;
+}
+
+export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
+  const [progress, setProgress] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
+
+  // Check sessionStorage immediately on mount
+  useEffect(() => {
+    const played = sessionStorage.getItem("nagazaki-preloader-played-v2");
+    if (played === "true") {
+      setHasPlayed(true);
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Set up asset preloading and progress interval
+  useEffect(() => {
+    if (hasPlayed) return;
+
+    // List of critical creative assets to prefetch
+    const criticalAssets = [
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuD3J6eFeEJvVSwZ_bURERbQWdwj6kJIDU46CDxKVy-bdr55j4qNPUVpeuUV0Wt4O-8wUXCF16fuwrBGDL0zaPbQ-mFEECA4xcgsJxR10-itW2Boihf1zkKzb2mzMzzyxMdFobj9j6FS9DlcOJMei9KVLqsRYF_YAtJUKKae9_uVVNuxWTjBSv5IQie7T0SeU9Ab-KwlX5wA9_WXhp17syG6kKzYrJOYYf_vXAuCszacyi4sjbdtr2nEKgJklceb7KB8hfA", // Hero Avatar
+      "https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif" // Space Voyage project image
+    ];
+
+    let loadedCount = 0;
+    const totalAssets = criticalAssets.length;
+
+    // Trigger preload promises
+    const preloadPromises = criticalAssets.map((src) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          loadedCount++;
+          resolve();
+        };
+        img.onerror = () => {
+          loadedCount++; // Fail silently so page isn't blocked
+          resolve();
+        };
+      });
+    });
+
+    // Check if system fonts are ready
+    const fontsPromise = document.fonts ? document.fonts.ready : Promise.resolve();
+
+    // High performance ticker logic for super-fluid counter animation
+    let targetProgress = 0;
+    const intervalTime = 16; // ~60fps ticker
+    const duration = 2800; // ~2.8s total maximum time
+    const step = 100 / (duration / intervalTime);
+
+    const timer = setInterval(() => {
+      // Calculate active preloading weight
+      const preloadingWeight = totalAssets > 0 ? (loadedCount / totalAssets) * 80 : 80;
+      // Synthesize a fluid natural acceleration as assets load
+      targetProgress = Math.min(
+        99,
+        targetProgress + step * (1 + (preloadingWeight / 100) * 1.5)
+      );
+
+      // Smooth step ease tracking
+      setProgress((prev) => {
+        const next = prev + (targetProgress - prev) * 0.15;
+        return next >= 98.7 ? 100 : Math.ceil(next);
+      });
+    }, intervalTime);
+
+    // Coordinate complete release
+    Promise.all([...preloadPromises, fontsPromise]).then(() => {
+      // Accelerate the counter to 100% when everything is loaded
+      targetProgress = 100;
+    });
+
+    return () => clearInterval(timer);
+  }, [hasPlayed]);
+
+  // Handle final reveal sequence
+  useEffect(() => {
+    if (progress === 100) {
+      const timeout = setTimeout(() => {
+        setIsLoaded(true);
+        sessionStorage.setItem("nagazaki-preloader-played-v2", "true");
+      }, 700); // Cinematic holding phase at 100%
+      return () => clearTimeout(timeout);
+    }
+  }, [progress]);
+
+  // Respect system reduced-motion preference
+  const systemReducedMotion = 
+    typeof window !== "undefined" && 
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Let's check if the preloader has already finished
+  if (hasPlayed) {
+    return <>{children}</>;
+  }
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        {!isLoaded && (
+          <motion.div
+            id="premium-preloader"
+            role="dialog"
+            aria-label="Loading portfolio"
+            initial={{ opacity: 1, y: 0 }}
+            exit={
+              systemReducedMotion
+                ? { opacity: 0 }
+                : {
+                    y: "-100%",
+                    transition: {
+                      duration: 0.95,
+                      ease: [0.76, 0, 0.24, 1] // Elite cubic bezier formula for fluid curtain lifts
+                    }
+                  }
+            }
+            className="fixed inset-0 z-[9999] w-full h-full bg-[#FAFAFA] text-[#0C0C0C] flex flex-col justify-between p-8 sm:p-14 overflow-hidden select-none"
+          >
+            {/* Elegant fine-line decorative layout frames (Awwwards design mode) */}
+            <div className="absolute inset-x-8 sm:inset-x-14 top-0 h-[1px] bg-black/5" />
+            <div className="absolute inset-x-8 sm:inset-x-14 bottom-0 h-[1px] bg-black/5" />
+            <div className="absolute inset-y-0 left-8 sm:left-14 w-[1px] bg-black/5" />
+            <div className="absolute inset-y-0 right-8 sm:right-14 w-[1px] bg-black/5" />
+
+            {/* TOP HEADER DETAILS */}
+            <div className="w-full flex justify-between items-start font-primary text-[10px] tracking-[0.25em] uppercase text-black/40 z-10">
+              <div className="flex flex-col gap-1">
+                <span>NAGAZAKI STUDIO</span>
+                <span className="text-black/25">PORTFOLIO v2.0</span>
+              </div>
+              <div className="text-right flex flex-col gap-1">
+                <span>CREATIVE DIRECTION</span>
+                <span className="text-black/25">TOKYO / GLOBAL</span>
+              </div>
+            </div>
+
+            {/* HIGH-END INTERACTIVE CENTER ANIMATION */}
+            <div className="flex-1 flex flex-col items-center justify-center relative z-10 py-10">
+              <motion.div
+                initial={systemReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.91 }}
+                animate={systemReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center gap-6"
+              >
+                {/* Custom Minimal Monoline Drawing Logo Emblem */}
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+                  {/* Dynamic spinning fine geometric boundaries */}
+                  <div className="absolute inset-0 rounded-full border border-black/5 animate-[spin_10s_linear_infinite]" />
+                  <div className="absolute inset-2 rounded-full border-[1.5px] border-dashed border-black/15 animate-[spin_6s_linear_infinite_reverse]" />
+                  
+                  {/* Styled central gothic/cinzel letter transition */}
+                  <span className="absolute text-3xl font-display font-black tracking-widest text-[#0C0C0C] select-none text-center">
+                    N
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center text-center">
+                  <h2 className="text-base sm:text-lg font-bold font-primary tracking-[0.35em] text-[#0c0c0c] uppercase">
+                    NAGAZAKI
+                  </h2>
+                  <p className="text-[9px] font-mono tracking-[0.4em] text-black/35 uppercase mt-1">
+                    EST. 2023 / INNOVATING IN WEB3D
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* BOTTOM FOOTER LOGIC - HIGH-END PERCENTAGE STREAM */}
+            <div className="w-full flex justify-between items-end z-10">
+              <div className="font-primary text-[10px] uppercase text-black/35 tracking-wider hidden sm:block">
+                <span>LOADING INTELLECTUAL EXPERIENCE...</span>
+                <div className="w-48 h-[1px] bg-black/10 mt-2.5 relative overflow-hidden">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 bg-black"
+                    style={{ width: `${progress}%` }}
+                    transition={{ ease: "easeOut" }}
+                  />
+                </div>
+              </div>
+              
+              {/* Giant Premium Mono Counter numbers */}
+              <div className="flex items-baseline font-primary text-[60px] sm:text-[90px] md:text-[110px] font-light leading-none tracking-tighter text-[#0C0C0C]">
+                <span>
+                  {progress < 100 ? `${progress}`.padStart(2, "0") : "100"}
+                </span>
+                <span className="text-[12px] sm:text-[18px] tracking-normal font-bold opacity-30 ml-2">
+                  %
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main App Container with Luxurious Fade In Cinematic Entrance */}
+      <div 
+        id="app-creative-stage animate-cinematic"
+        className={isLoaded ? "opacity-100 transition-opacity duration-[1100ms] ease-out-quad" : "opacity-0"}
+        style={{
+          transitionTimingFunction: "cubic-bezier(0.215, 0.61, 0.355, 1)",
+          transform: isLoaded || systemReducedMotion ? "none" : "scale(0.985) translateY(10px)",
+          transitionProperty: "opacity, transform",
+          transitionDuration: "1400ms"
+        }}
+      >
+        {children}
+      </div>
+    </>
+  );
+};

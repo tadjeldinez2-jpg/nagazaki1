@@ -72,7 +72,7 @@ export const ContactSection: React.FC = () => {
         hls.destroy();
       }
     };
-  }, []);
+  }, [isIntersected]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -112,8 +112,12 @@ export const ContactSection: React.FC = () => {
           loop
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-35 transition-opacity duration-1000"
         />
+        {/* Deep vignetting overlays for premium legibility and blending */}
+        <div className="absolute inset-0 bg-[#070709]/50 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070709] via-transparent to-[#070709] opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070709] via-[#070709]/20 to-[#070709] opacity-90" />
       </div>
 
       <div className="max-w-3xl mx-auto w-full relative z-10 flex flex-col items-center justify-center">
