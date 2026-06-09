@@ -65,6 +65,10 @@ export const HeroSection: React.FC = () => {
           onStateChange: (event: any) => {
             if (event.data === (window as any).YT.PlayerState.PLAYING) {
               (window as any).heroVideoPlaying = true;
+            } else if (event.data === (window as any).YT.PlayerState.ENDED) {
+              // Immediate emergency replay fallback
+              event.target.seekTo(0);
+              event.target.playVideo();
             }
           }
         }
@@ -84,7 +88,15 @@ export const HeroSection: React.FC = () => {
             (window as any).heroVideoPlaying = true;
           }
         }
-      }, 200);
+        // Seamless proactive loop fallback 0.5 seconds before video terminates to prevent the black flash of YouTube reload
+        if (player && typeof player.getCurrentTime === "function" && typeof player.getDuration === "function") {
+          const currentTime = player.getCurrentTime();
+          const duration = player.getDuration();
+          if (duration > 0 && currentTime >= duration - 0.5) {
+            player.seekTo(0.1);
+          }
+        }
+      }, 150);
 
     } catch (err) {
       console.error("Failed to initialize YT background player:", err);
@@ -200,7 +212,7 @@ export const HeroSection: React.FC = () => {
           height: 64.6875vw;
           min-height: 115vh;
           min-width: 204.43vh;
-          transform: translate(-50%, -50%) scale(1.25);
+          transform: translate(-50%, -50%) scale(1.45);
           pointer-events: none;
         }
       `}</style>
@@ -211,7 +223,7 @@ export const HeroSection: React.FC = () => {
       </div>
 
       {/* Ambient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none z-1" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40 pointer-events-none z-1" />
 
       {/* Hero Content Main Container */}
       <main className="relative w-full h-full flex flex-col items-center justify-center z-10 pointer-events-none">
