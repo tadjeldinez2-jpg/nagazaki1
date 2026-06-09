@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Mail, Send, CheckCircle, Clock, MapPin, Sparkles, MessageSquare, User, ArrowUpRight } from "lucide-react";
-import Hls from "hls.js";
 import { FadeIn } from "./FadeIn";
 
 export const ContactSection: React.FC = () => {
@@ -13,66 +12,6 @@ export const ContactSection: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
-
-  const [isIntersected, setIsIntersected] = useState(false);
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsIntersected(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" } // trigger loading slightly before view
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!isIntersected) return;
-
-    const video = videoRef.current;
-    if (!video) return;
-
-    let hls: Hls | null = null;
-    const streamUrl = "https://stream.mux.com/01yW6GoUz01OTXk5w1Rt1MHkJWlCGIwj46SUONJZ4DJUE.m3u8";
-
-    if (Hls.isSupported()) {
-      hls = new Hls({
-        maxMaxBufferLength: 10,
-        enableWorker: true,
-        lowLatencyMode: true,
-      });
-      hls.loadSource(streamUrl);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(err => {
-          console.log("Auto-play was prevented by browser security rules:", err);
-        });
-      });
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = streamUrl;
-      video.addEventListener("loadedmetadata", () => {
-        video.play().catch(err => {
-          console.log("Auto-play was prevented by browser security rules:", err);
-        });
-      });
-    }
-
-    return () => {
-      if (hls) {
-        hls.destroy();
-      }
-    };
-  }, [isIntersected]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -101,25 +40,8 @@ export const ContactSection: React.FC = () => {
   return (
     <section
       id="contact"
-      ref={sectionRef}
-      className="relative min-h-screen bg-[#070709] border-t border-zinc-900/60 text-[#D7E2EA] px-6 sm:px-12 py-24 pb-36 overflow-hidden flex flex-col justify-center"
+      className="relative min-h-screen bg-black border-t border-zinc-900/60 text-[#D7E2EA] px-6 sm:px-12 py-24 pb-36 overflow-hidden flex flex-col justify-center animate-bg-fade"
     >
-      {/* Dynamic Streaming Video Background */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <video
-          ref={videoRef}
-          muted
-          loop
-          autoPlay
-          playsInline
-          className="w-full h-full object-cover opacity-35 transition-opacity duration-1000"
-        />
-        {/* Deep vignetting overlays for premium legibility and blending */}
-        <div className="absolute inset-0 bg-[#070709]/50 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070709] via-transparent to-[#070709] opacity-95" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070709] via-[#070709]/20 to-[#070709] opacity-90" />
-      </div>
-
       <div className="max-w-3xl mx-auto w-full relative z-10 flex flex-col items-center justify-center">
         
         {/* Centered Heading */}
