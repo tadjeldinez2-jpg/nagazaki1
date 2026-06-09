@@ -5,110 +5,19 @@ export const HeroSection: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const pillRef = useRef<HTMLDivElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
-  const [ytReady, setYtReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    // 1. Inject YouTube Iframe Player API script if not present
-    const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
-    if (!existingScript) {
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-    }
-
-    // 2. Set up YT ready callback
-    if ((window as any).YT && (window as any).YT.Player) {
-      setYtReady(true);
-    } else {
-      const prevCallback = (window as any).onYouTubeIframeAPIReady;
-      (window as any).onYouTubeIframeAPIReady = () => {
-        if (prevCallback) prevCallback();
-        setYtReady(true);
-      };
+    const video = videoRef.current;
+    if (video) {
+      video.defaultMuted = true;
+      video.muted = true;
+      video.preload = "auto";
+      video.play().catch((err) => {
+        console.warn("Autofocus play of MP4 background video interrupted:", err);
+      });
     }
   }, []);
-
-  useEffect(() => {
-    if (!ytReady) return;
-
-    let player: any;
-    let progressInterval: NodeJS.Timeout;
-
-    try {
-      player = new (window as any).YT.Player("youtube-bg-player", {
-        videoId: "Djf5ZTQnW-c",
-        playerVars: {
-          autoplay: 1,
-          mute: 1,
-          loop: 1,
-          playlist: "Djf5ZTQnW-c",
-          controls: 0,
-          showinfo: 0,
-          rel: 0,
-          iv_load_policy: 3,
-          playsinline: 1,
-          enablejsapi: 1,
-          disablekb: 1,
-          fs: 0,
-          modestbranding: 1,
-          vq: "hd1080"
-        },
-        events: {
-          onReady: (event: any) => {
-            event.target.mute();
-            if (typeof event.target.setPlaybackQuality === "function") {
-              event.target.setPlaybackQuality("hd1080");
-            }
-            event.target.playVideo();
-          },
-          onStateChange: (event: any) => {
-            if (event.data === (window as any).YT.PlayerState.PLAYING) {
-              (window as any).heroVideoPlaying = true;
-            } else if (event.data === (window as any).YT.PlayerState.ENDED) {
-              // Immediate emergency replay fallback
-              event.target.seekTo(0);
-              event.target.playVideo();
-            }
-          }
-        }
-      });
-
-      // Poll play state and loaded fraction to bypass/continue preloader
-      progressInterval = setInterval(() => {
-        if (player && typeof player.getVideoLoadedFraction === "function") {
-          const loadedFraction = player.getVideoLoadedFraction();
-          if (loadedFraction >= 0.5) {
-            (window as any).heroVideoHalfLoaded = true;
-          }
-        }
-        if (player && typeof player.getPlayerState === "function") {
-          const state = player.getPlayerState();
-          if (state === (window as any).YT.PlayerState.PLAYING) {
-            (window as any).heroVideoPlaying = true;
-          }
-        }
-        // Seamless proactive loop fallback 0.5 seconds before video terminates to prevent the black flash of YouTube reload
-        if (player && typeof player.getCurrentTime === "function" && typeof player.getDuration === "function") {
-          const currentTime = player.getCurrentTime();
-          const duration = player.getDuration();
-          if (duration > 0 && currentTime >= duration - 0.5) {
-            player.seekTo(0.1);
-          }
-        }
-      }, 150);
-
-    } catch (err) {
-      console.error("Failed to initialize YT background player:", err);
-    }
-
-    return () => {
-      if (progressInterval) clearInterval(progressInterval);
-      if (player && typeof player.destroy === "function") {
-        player.destroy();
-      }
-    };
-  }, [ytReady]);
 
   useEffect(() => {
     const handleScrollEvent = () => {
@@ -203,24 +112,20 @@ export const HeroSection: React.FC = () => {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
-
-        .youtube-player-iframe-cover {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 115vw;
-          height: 64.6875vw;
-          min-height: 115vh;
-          min-width: 204.43vh;
-          transform: translate(-50%, -50%) scale(1.45);
-          pointer-events: none;
-        }
       `}</style>
 
-      {/* Background YouTube Video Container */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div id="youtube-bg-player" className="youtube-player-iframe-cover" />
-      </div>
+      {/* Background Video */}
+      <video
+        id="hero-bg-video"
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
+      />
 
       {/* Ambient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40 pointer-events-none z-1" />
