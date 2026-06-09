@@ -51,31 +51,60 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
       });
     });
 
-    // Trigger video preload promises with native HTML5 pipeline caching
+    // Trigger video preload promises with native HTML5 pipeline caching, enhanced with elite Blob memory pre-buffering
     const videoPromises = criticalVideos.map((src) => {
       return new Promise<void>((resolve) => {
-        const video = document.createElement("video");
-        video.src = src;
-        video.preload = "auto";
-        video.muted = true;
-        video.playsInline = true;
-
-        const onReady = () => {
-          loadedCount++;
+        // Create a safety timeout so slow connections don't hang the preloader
+        const timeoutId = setTimeout(() => {
+          console.log("Video buffering took longer than threshold; resolving preloader early for fast initial paint.");
           resolve();
-          video.removeEventListener("canplaythrough", onReady);
-          video.removeEventListener("error", onError);
-        };
-        const onError = () => {
-          loadedCount++; // Fail silently so page isn't blocked
-          resolve();
-          video.removeEventListener("canplaythrough", onReady);
-          video.removeEventListener("error", onError);
-        };
+        }, 3000);
 
-        video.addEventListener("canplaythrough", onReady);
-        video.addEventListener("error", onError);
-        video.load();
+        fetch(src, { cache: "force-cache" })
+          .then((res) => {
+            if (!res.ok) throw new Error("Fetch stream error");
+            return res.blob();
+          })
+          .then((blob) => {
+            clearTimeout(timeoutId);
+            const objectUrl = URL.createObjectURL(blob);
+            (window as any).__NAGAZAKI_HERO_VIDEO_URL__ = objectUrl;
+            
+            // Dispatch to active HeroSection if already mounted
+            window.dispatchEvent(
+              new CustomEvent("nagazaki-hero-video-ready", { detail: objectUrl })
+            );
+            loadedCount++;
+            resolve();
+          })
+          .catch((err) => {
+            console.warn("CORS or pipeline fetch barred blob load, falling back to progressive streaming:", err);
+            clearTimeout(timeoutId);
+            
+            // Fall back to native HTML5 stream loading
+            const video = document.createElement("video");
+            video.src = src;
+            video.preload = "auto";
+            video.muted = true;
+            video.playsInline = true;
+
+            const onReady = () => {
+              loadedCount++;
+              resolve();
+              video.removeEventListener("canplaythrough", onReady);
+              video.removeEventListener("error", onError);
+            };
+            const onError = () => {
+              loadedCount++;
+              resolve();
+              video.removeEventListener("canplaythrough", onReady);
+              video.removeEventListener("error", onError);
+            };
+
+            video.addEventListener("canplaythrough", onReady);
+            video.addEventListener("error", onError);
+            video.load();
+          });
       });
     });
 

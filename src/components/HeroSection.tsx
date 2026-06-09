@@ -6,6 +6,23 @@ export const HeroSection: React.FC = () => {
   const pillRef = useRef<HTMLDivElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  
+  const [videoSrc, setVideoSrc] = useState<string>(
+    () => (window as any).__NAGAZAKI_HERO_VIDEO_URL__ || "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
+  );
+
+  useEffect(() => {
+    const handleVideoReady = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (customEvent.detail) {
+        setVideoSrc(customEvent.detail);
+      }
+    };
+    window.addEventListener("nagazaki-hero-video-ready", handleVideoReady);
+    return () => {
+      window.removeEventListener("nagazaki-hero-video-ready", handleVideoReady);
+    };
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -17,7 +34,7 @@ export const HeroSection: React.FC = () => {
         console.warn("Video autofocus play prevented:", err);
       });
     }
-  }, []);
+  }, [videoSrc]);
 
   useEffect(() => {
     const handleScrollEvent = () => {
@@ -98,10 +115,13 @@ export const HeroSection: React.FC = () => {
         }
         
         .glass-pill {
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: rgba(15, 15, 15, 0.48);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
         }
         
         .fade-in {
@@ -122,8 +142,8 @@ export const HeroSection: React.FC = () => {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
+        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none [will-change:transform] [transform:translate3d(0,0,0)]"
+        src={videoSrc}
       />
 
       {/* Ambient overlay */}
