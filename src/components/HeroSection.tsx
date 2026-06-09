@@ -5,36 +5,94 @@ export const HeroSection: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const pillRef = useRef<HTMLDivElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  
-  const [videoSrc, setVideoSrc] = useState<string>(
-    () => (window as any).__NAGAZAKI_HERO_VIDEO_URL__ || "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
-  );
+  const [ytReady, setYtReady] = useState(false);
 
   useEffect(() => {
-    const handleVideoReady = (e: Event) => {
-      const customEvent = e as CustomEvent<string>;
-      if (customEvent.detail) {
-        setVideoSrc(customEvent.detail);
-      }
-    };
-    window.addEventListener("nagazaki-hero-video-ready", handleVideoReady);
-    return () => {
-      window.removeEventListener("nagazaki-hero-video-ready", handleVideoReady);
-    };
+    // 1. Inject YouTube Iframe Player API script if not present
+    const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+    if (!existingScript) {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+
+    // 2. Set up YT ready callback
+    if ((window as any).YT && (window as any).YT.Player) {
+      setYtReady(true);
+    } else {
+      const prevCallback = (window as any).onYouTubeIframeAPIReady;
+      (window as any).onYouTubeIframeAPIReady = () => {
+        if (prevCallback) prevCallback();
+        setYtReady(true);
+      };
+    }
   }, []);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      // Force play execution as soon as metadata or connection finishes
-      video.defaultMuted = true;
-      video.muted = true;
-      video.play().catch((err) => {
-        console.warn("Video autofocus play prevented:", err);
+    if (!ytReady) return;
+
+    let player: any;
+    let progressInterval: NodeJS.Timeout;
+
+    try {
+      player = new (window as any).YT.Player("youtube-bg-player", {
+        videoId: "Djf5ZTQnW-c",
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: "Djf5ZTQnW-c",
+          controls: 0,
+          showinfo: 0,
+          rel: 0,
+          iv_load_policy: 3,
+          playsinline: 1,
+          enablejsapi: 1,
+          disablekb: 1,
+          fs: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: (event: any) => {
+            event.target.mute();
+            event.target.playVideo();
+          },
+          onStateChange: (event: any) => {
+            if (event.data === (window as any).YT.PlayerState.PLAYING) {
+              (window as any).heroVideoPlaying = true;
+            }
+          }
+        }
       });
+
+      // Poll play state and loaded fraction to bypass/continue preloader
+      progressInterval = setInterval(() => {
+        if (player && typeof player.getVideoLoadedFraction === "function") {
+          const loadedFraction = player.getVideoLoadedFraction();
+          if (loadedFraction >= 0.5) {
+            (window as any).heroVideoHalfLoaded = true;
+          }
+        }
+        if (player && typeof player.getPlayerState === "function") {
+          const state = player.getPlayerState();
+          if (state === (window as any).YT.PlayerState.PLAYING) {
+            (window as any).heroVideoPlaying = true;
+          }
+        }
+      }, 200);
+
+    } catch (err) {
+      console.error("Failed to initialize YT background player:", err);
     }
-  }, [videoSrc]);
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+      if (player && typeof player.destroy === "function") {
+        player.destroy();
+      }
+    };
+  }, [ytReady]);
 
   useEffect(() => {
     const handleScrollEvent = () => {
@@ -115,13 +173,10 @@ export const HeroSection: React.FC = () => {
         }
         
         .glass-pill {
-          background: rgba(15, 15, 15, 0.48);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          will-change: transform;
-          transform: translate3d(0, 0, 0);
-          backface-visibility: hidden;
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
         .fade-in {
@@ -132,19 +187,24 @@ export const HeroSection: React.FC = () => {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
+
+        .youtube-player-iframe-cover {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 100vw;
+          height: 56.25vw;
+          min-height: 100vh;
+          min-width: 177.77vh;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
+        }
       `}</style>
 
-      {/* Background Video */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none [will-change:transform] [transform:translate3d(0,0,0)]"
-        src={videoSrc}
-      />
+      {/* Background YouTube Video Container */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div id="youtube-bg-player" className="youtube-player-iframe-cover" />
+      </div>
 
       {/* Ambient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none z-1" />

@@ -148,7 +148,7 @@ export const FloatingNav: React.FC = () => {
                 <button
                   id="floating-nav-letstalk-btn"
                   onClick={() => handleNavClick("contact")}
-                  className="inline-flex items-center justify-center h-10 md:h-12 px-3.5 md:px-5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-amber-400 hover:bg-amber-300 active:scale-95 text-black rounded-lg md:rounded-xl transition-all duration-300 cursor-pointer shadow-md"
+                  className="hidden sm:inline-flex items-center justify-center h-10 md:h-12 px-3.5 md:px-5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-amber-400 hover:bg-amber-300 active:scale-95 text-black rounded-lg md:rounded-xl transition-all duration-300 cursor-pointer shadow-md"
                 >
                   LET&apos;S TALK
                 </button>
