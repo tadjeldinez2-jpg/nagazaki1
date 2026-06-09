@@ -25,15 +25,18 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
 
     // List of critical creative assets to prefetch
     const criticalAssets = [
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD3J6eFeEJvVSwZ_bURERbQWdwj6kJIDU46CDxKVy-bdr55j4qNPUVpeuUV0Wt4O-8wUXCF16fuwrBGDL0zaPbQ-mFEECA4xcgsJxR10-itW2Boihf1zkKzb2mzMzzyxMdFobj9j6FS9DlcOJMei9KVLqsRYF_YAtJUKKae9_uVVNuxWTjBSv5IQie7T0SeU9Ab-KwlX5wA9_WXhp17syG6kKzYrJOYYf_vXAuCszacyi4sjbdtr2nEKgJklceb7KB8hfA", // Hero Avatar
-      "https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif" // Space Voyage project image
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuD3J6eFeEJvVSwZ_bURERbQWdwj6kJIDU46CDxKVy-bdr55j4qNPUVpeuUV0Wt4O-8wUXCF16fuwrBGDL0zaPbQ-mFEECA4xcgsJxR10-itW2Boihf1zkKzb2mzMzzyxMdFobj9j6FS9DlcOJMei9KVLqsRYF_YAtJUKKae9_uVVNuxWTjBSv5IQie7T0SeU9Ab-KwlX5wA9_WXhp17syG6kKzYrJOYYf_vXAuCszacyi4sjbdtr2nEKgJklceb7KB8hfA" // Hero Avatar
+    ];
+
+    const criticalVideos = [
+      "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4" // Hero Background Video
     ];
 
     let loadedCount = 0;
-    const totalAssets = criticalAssets.length;
+    const totalAssets = criticalAssets.length + criticalVideos.length;
 
-    // Trigger preload promises
-    const preloadPromises = criticalAssets.map((src) => {
+    // Trigger image preload promises
+    const imagePromises = criticalAssets.map((src) => {
       return new Promise<void>((resolve) => {
         const img = new Image();
         img.src = src;
@@ -47,6 +50,36 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
         };
       });
     });
+
+    // Trigger video preload promises with native HTML5 pipeline caching
+    const videoPromises = criticalVideos.map((src) => {
+      return new Promise<void>((resolve) => {
+        const video = document.createElement("video");
+        video.src = src;
+        video.preload = "auto";
+        video.muted = true;
+        video.playsInline = true;
+
+        const onReady = () => {
+          loadedCount++;
+          resolve();
+          video.removeEventListener("canplaythrough", onReady);
+          video.removeEventListener("error", onError);
+        };
+        const onError = () => {
+          loadedCount++; // Fail silently so page isn't blocked
+          resolve();
+          video.removeEventListener("canplaythrough", onReady);
+          video.removeEventListener("error", onError);
+        };
+
+        video.addEventListener("canplaythrough", onReady);
+        video.addEventListener("error", onError);
+        video.load();
+      });
+    });
+
+    const preloadPromises = [...imagePromises, ...videoPromises];
 
     // Check if system fonts are ready
     const fontsPromise = document.fonts ? document.fonts.ready : Promise.resolve();

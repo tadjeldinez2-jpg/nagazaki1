@@ -5,6 +5,19 @@ export const HeroSection: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const pillRef = useRef<HTMLDivElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      // Force play execution as soon as metadata or connection finishes
+      video.defaultMuted = true;
+      video.muted = true;
+      video.play().catch((err) => {
+        console.warn("Video autofocus play prevented:", err);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const handleScrollEvent = () => {
@@ -103,17 +116,15 @@ export const HeroSection: React.FC = () => {
 
       {/* Background Video */}
       <video
+        ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
+        preload="auto"
         className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-      >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
-          type="video/mp4"
-        />
-      </video>
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
+      />
 
       {/* Ambient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none z-1" />
