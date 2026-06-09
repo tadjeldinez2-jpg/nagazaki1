@@ -202,7 +202,7 @@ export const ContactSection: React.FC = () => {
                 <div className="flex justify-between items-center mb-2">
                   <label htmlFor="message-input" className="block text-zinc-500 text-[10px] font-mono uppercase tracking-widest font-bold flex items-center gap-1.5">
                     <MessageSquare className="w-3.5 h-3.5 text-zinc-600" />
-                    How can Filip help? <span className="text-amber-400">*</span>
+                    How can I help? <span className="text-amber-400">*</span>
                   </label>
                   <span className="text-[10px] font-mono text-zinc-700">
                     {formData.message.length} chars

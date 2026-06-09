@@ -158,24 +158,24 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
             ? 'opacity-100 z-10' 
             : isIdle 
               ? 'opacity-85' 
-              : 'opacity-20 blur-[0.5px] hover:blur-none hover:opacity-100'
+              : 'opacity-20 hover:opacity-100'
         }`}
         onMouseEnter={() => onMouseEnter(index, project.image)}
         onMouseLeave={onMouseLeave}
         data-image={project.image}
       >
-        <div className="col-span-1 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+        <div className="col-span-1 text-[11px] font-mono text-zinc-500 uppercase tracking-wider flex-shrink-0">
           {String(index + 1).padStart(2, '0')}
         </div>
         
         {/* Artist / Project column */}
-        <div className="col-span-4 md:col-span-3 flex">
+        <div className="col-span-4 md:col-span-3 flex items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.artist} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 ${
+            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 truncate max-w-full ${
               isActive 
                 ? 'bg-amber-300 text-black font-semibold text-xs sm:text-sm uppercase' 
-                : 'text-white tracking-tight text-sm sm:text-base group-hover/row:text-amber-300'
+                : 'text-white tracking-tight text-xs sm:text-sm group-hover/row:text-amber-300'
             }`}
           >
             {project.artist}
@@ -183,10 +183,10 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
         </div>
 
         {/* Album / Concept column */}
-        <div className="col-span-4 md:col-span-3 flex col-span-4 md:col-span-3">
+        <div className="col-span-4 md:col-span-3 flex items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.album} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono ${
+            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono truncate max-w-full ${
               isActive 
                 ? 'bg-amber-300 text-black font-semibold text-xs sm:text-sm uppercase' 
                 : 'text-zinc-300 text-xs sm:text-sm'
@@ -197,10 +197,10 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
         </div>
 
         {/* Category column */}
-        <div className="hidden md:flex col-span-2">
+        <div className="hidden md:flex col-span-2 items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.category} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs ${
+            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs truncate max-w-full ${
               isActive 
                 ? 'bg-amber-300 text-black font-semibold uppercase' 
                 : 'text-zinc-500'
@@ -211,10 +211,10 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
         </div>
 
         {/* Publisher/Label column */}
-        <div className="hidden md:flex col-span-2">
+        <div className="hidden md:flex col-span-2 items-center overflow-hidden min-w-0">
           <span 
             ref={textRefs.label} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs ${
+            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs truncate max-w-full ${
               isActive 
                 ? 'bg-amber-300 text-black font-semibold uppercase' 
                 : 'text-zinc-500'
@@ -225,10 +225,10 @@ const ProjectItem = forwardRef<HTMLLIElement, ProjectItemProps>(
         </div>
 
         {/* Year column */}
-        <div className="col-span-3 md:col-span-1 flex justify-end">
+        <div className="col-span-3 md:col-span-1 flex items-center justify-end overflow-hidden min-w-0">
           <span 
             ref={textRefs.year} 
-            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs ${
+            className={`transition-all duration-150 rounded-sm leading-none py-1 px-1.5 font-mono text-xs truncate max-w-full ${
               isActive 
                 ? 'bg-amber-300 text-black font-semibold uppercase' 
                 : 'text-zinc-400'
@@ -354,16 +354,22 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
       const bg = backgroundRef.current;
       const imageUrl = PROJECTS_DATA[activeIndex].image;
       if (imageUrl) {
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
         bg.style.transition = "none";
-        bg.style.transform = "scale(1.08)";
+        bg.style.transform = isMobile ? "none" : "scale(1.08)";
         bg.style.backgroundImage = `url(${imageUrl})`;
         bg.style.opacity = "1"; // Highly visible atmospheric full-cover image at maximum high quality
         
         const frame1 = requestAnimationFrame(() => {
           const frame2 = requestAnimationFrame(() => {
             if (bg) {
-              bg.style.transition = "opacity 0.7s ease-out, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)";
-              bg.style.transform = "scale(1.0)";
+              if (isMobile) {
+                bg.style.transition = "opacity 0.7s ease-out";
+                bg.style.transform = "none";
+              } else {
+                bg.style.transition = "opacity 0.7s ease-out, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)";
+                bg.style.transform = "scale(1.0)";
+              }
             }
           });
         });
@@ -373,9 +379,14 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
       }
     } else if (activeIndex === -1 && backgroundRef.current) {
       const bg = backgroundRef.current;
-      bg.style.transition = "opacity 0.6s ease-out, transform 0.6s ease-out";
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      bg.style.transition = "opacity 0.6s ease-out" + (isMobile ? "" : ", transform 0.6s ease-out");
       bg.style.opacity = "0";
-      bg.style.transform = "scale(0.96)";
+      if (!isMobile) {
+        bg.style.transform = "scale(0.96)";
+      } else {
+        bg.style.transform = "none";
+      }
     }
   }, [activeIndex, PROJECTS_DATA]);
 
@@ -429,7 +440,13 @@ export const MusicPortfolio: React.FC<MusicPortfolioProps> = ({
       <div 
         ref={backgroundRef}
         className="portfolio-bg-image pointer-events-none absolute inset-0 w-full h-full bg-no-repeat bg-cover bg-center opacity-0 transition-all duration-750 ease-out z-0"
-        style={{ transformOrigin: "center center" }}
+        style={{ 
+          transformOrigin: "center center",
+          WebkitBackfaceVisibility: "hidden",
+          backfaceVisibility: "hidden",
+          willChange: "opacity",
+          imageRendering: "auto"
+        }}
       />
       {/* Clear overlay for crisp project visuals */}
       <div className="pointer-events-none absolute inset-0 bg-transparent z-0" />
