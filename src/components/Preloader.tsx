@@ -130,7 +130,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ children }) => {
     ];
 
     const criticalVideos = [
-      "https://res.cloudinary.com/dx8hzrhli/video/upload/v1781050946/2_1_olp7rm.mp4", // Hero Background Video
+      "https://res.cloudinary.com/dx8hzrhli/video/upload/v1781051516/202606100108_ff5daf.mp4", // Hero Background Video
       "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_171521_25968ba2-b594-4b32-aab7-f6b69398a6fa.mp4"  // Floating Nav Avatar Video
     ];
 
