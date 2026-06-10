@@ -124,7 +124,7 @@ export const HeroSection: React.FC = () => {
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-        src="https://res.cloudinary.com/dx8hzrhli/video/upload/v1781051516/202606100108_ff5daf.mp4"
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4"
       />
 
       {/* Ambient overlay */}
