@@ -1,199 +1,282 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Mail, Send, CheckCircle, Clock, MapPin, Sparkles, MessageSquare, User, ArrowUpRight } from "lucide-react";
-import { FadeIn } from "./FadeIn";
+import { Twitter, Circle, Instagram, Linkedin, MessageSquare } from "lucide-react";
+
+// CONSTANTS
+const VIDEO_URL = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260602_150901_c45b90ec-18d7-42ff-90e2-b95d7109e330.mp4";
+
+const SERVICES = [
+  "Website",
+  "Mobile App",
+  "Web App",
+  "E-Commerce",
+  "Visual Identity",
+  "3D & Motion",
+  "Digital Marketing",
+  "Growth & Consulting",
+  "Other"
+];
+
+// Helper Component for Social Buttons
+interface SocialBtnProps {
+  icon: React.ReactNode;
+  bgColor: string;
+  textColor: string;
+  href: string;
+}
+
+const SocialBtn: React.FC<SocialBtnProps> = ({ icon, bgColor, textColor, href }) => {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`w-8 h-8 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity ${bgColor} ${textColor}`}
+    >
+      {icon}
+    </a>
+  );
+};
 
 export const ContactSection: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  // Toggle multi-select tags
+  const handleTagToggle = (service: string) => {
+    setSelected(prev =>
+      prev.includes(service)
+        ? prev.filter(item => item !== service)
+        : [...prev, service]
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
+    if (!name.trim() || !email.trim()) return;
 
-    setIsSubmitting(true);
-    
-    // Simulate premium submission with nice timeline delays
-    await new Promise(resolve => setTimeout(resolve, 1400));
-    
-    setIsSubmitting(false);
-    setSubmitStatus("success");
-    setFormData({ name: "", email: "", subject: "", message: "" });
-
-    // Auto reset success status after 6s
-    setTimeout(() => {
-      setSubmitStatus("idle");
-    }, 6000);
+    setSending(true);
+    // 1-second delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSending(false);
+    setSent(true);
   };
 
   return (
     <section
       id="contact"
-      className="relative min-h-screen bg-black border-t border-zinc-900/60 text-[#D7E2EA] px-6 sm:px-12 py-24 pb-36 overflow-hidden flex flex-col justify-center animate-bg-fade"
+      className="min-h-screen bg-white text-black p-3 sm:p-4 md:p-6 flex flex-col justify-center font-sans"
     >
-      <div className="max-w-3xl mx-auto w-full relative z-10 flex flex-col items-center justify-center">
+      {/* Centered LET'S TALK header matching ProjectsSection style */}
+      <div className="mb-12 text-center select-none pt-4 sm:pt-6">
+        <p className="text-[10px] tracking-[0.3em] font-black uppercase text-amber-500 mb-3 flex items-center justify-center gap-2">
+          <MessageSquare className="w-3.5 h-3.5 animate-pulse" />
+          GET IN TOUCH
+        </p>
+        <h3 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase text-[#0C0C0C] tracking-widest">
+          LET'S TALK
+        </h3>
+      </div>
+
+      {/* Large Rounded Card Container */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden min-h-[calc(100vh-24px)] sm:min-h-[calc(100vh-32px)] md:min-h-[calc(100vh-48px)] lg:h-[calc(100vh-48px)] bg-black shadow-inner">
         
-        {/* Centered Heading */}
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold uppercase text-white tracking-tight leading-none text-center mb-10">
-          LET&apos;S TALK
-        </h2>
+        {/* Background Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          src={VIDEO_URL}
+        />
 
-        {/* Interactive interactive lead capture widget */}
-        <div className="w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="w-full bg-[#0b0b0f] border border-zinc-900 rounded-[28px] p-6 sm:p-10 md:p-12 shadow-2xl relative overflow-hidden"
-          >
-            {/* Submit Success Overlay */}
-            <AnimatePresence>
-              {submitStatus === "success" && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute inset-0 bg-[#0b0b0f]/98 min-h-full w-full z-30 flex flex-col items-center justify-center text-center p-8 backdrop-blur"
-                >
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
-                    className="w-16 h-16 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-6"
-                  >
-                    <CheckCircle className="w-8 h-8" />
-                  </motion.div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-tight mb-2">
-                    THANK YOU FOR THE TRANSMISSION
-                  </h3>
-                  <p className="text-zinc-400 max-w-sm text-sm sm:text-base mb-8">
-                    Your request was received successfully. Filip will review and contact you shortly. Keep an eye on your inbox!
-                  </p>
-                  <button
-                    onClick={() => setSubmitStatus("idle")}
-                    className="px-8 py-3 bg-zinc-900 border border-zinc-800 text-white rounded-full font-bold uppercase tracking-widest text-xs hover:bg-zinc-800 hover:border-zinc-700 active:scale-95 transition-all cursor-pointer"
-                  >
-                    Send another line
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {/* Ambient Overlay */}
+        <div className="absolute inset-0 bg-black/40 z-1 pointer-events-none" />
 
-            <h3 className="font-display font-medium text-xl sm:text-2xl text-white uppercase tracking-tight mb-8">
-              Send Filip a direct inquiry
-            </h3>
+        {/* Content Layer */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between w-full p-4 sm:p-6 md:p-8 gap-6 min-h-[calc(100vh-24px)] sm:min-h-[calc(100vh-32px)] md:min-h-[calc(100vh-48px)] lg:h-full">
+          
+          {/* Headline (Left) */}
+          <div className="flex-1 max-w-xl text-left">
+            <p className="text-white text-3xl sm:text-4xl xl:text-5xl font-medium leading-tight drop-shadow-lg lg:max-w-lg xl:max-w-2xl shrink-0">
+              I craft bold ideas <br />
+              and ship them as{" "}
+              <span
+                style={{
+                  fontFamily: "'Instrument Serif', serif",
+                  fontStyle: "italic",
+                  fontWeight: 400
+                }}
+              >
+                products
+              </span>
+            </p>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name-input" className="block text-zinc-500 text-[10px] font-mono uppercase tracking-widest mb-2 font-bold flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-zinc-600" />
-                    Full name <span className="text-amber-400">*</span>
-                  </label>
-                  <input
-                    id="name-input"
-                    type="text"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your name"
-                    className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-4 py-3.5 text-white placeholder-zinc-700 text-sm focus:outline-none focus:border-amber-400/40 focus:ring-1 focus:ring-amber-400/30 transition-all font-sans font-medium"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email-input" className="block text-zinc-500 text-[10px] font-mono uppercase tracking-widest mb-2 font-bold flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-zinc-600" />
-                    Email address <span className="text-amber-400">*</span>
-                  </label>
-                  <input
-                    id="email-input"
-                    type="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@domain.com"
-                    className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-4 py-3.5 text-white placeholder-zinc-700 text-sm focus:outline-none focus:border-amber-400/40 focus:ring-1 focus:ring-amber-400/30 transition-all font-sans font-medium"
-                  />
-                </div>
-              </div>
+          {/* Contact Form Card (Right) */}
+          <div className="w-full lg:w-[min(480px,45%)] shrink-0 z-10">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-6 flex flex-col gap-4 text-black text-left">
+              
+              {/* Heading */}
+              <h3 className="text-xl sm:text-2xl font-semibold text-black tracking-tight">
+                Say hello! 👋
+              </h3>
 
-              <div>
-                <label htmlFor="subject-input" className="block text-zinc-500 text-[10px] font-mono uppercase tracking-widest mb-2 font-bold flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-zinc-600" />
-                  Subject/Topic
-                </label>
-                <input
-                  id="subject-input"
-                  type="text"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  placeholder="e.g. 3D Project, Music Album, Consulting"
-                  className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-4 py-3.5 text-white placeholder-zinc-700 text-sm focus:outline-none focus:border-amber-400/40 focus:ring-1 focus:ring-amber-400/30 transition-all font-sans font-medium"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="message-input" className="block text-zinc-500 text-[10px] font-mono uppercase tracking-widest font-bold flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5 text-zinc-600" />
-                    How can I help? <span className="text-amber-400">*</span>
-                  </label>
-                  <span className="text-[10px] font-mono text-zinc-700">
-                    {formData.message.length} chars
+              {/* Email + Socials Row */}
+              <div className="flex flex-row items-center justify-between gap-3 bg-gray-50 rounded-2xl px-4 py-2.5">
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+                    Drop us a line
                   </span>
+                  <a
+                    href="mailto:hello@forma.co"
+                    className="text-blue-600 font-semibold hover:underline truncate text-sm"
+                  >
+                    hello@forma.co
+                  </a>
                 </div>
-                <textarea
-                  id="message-input"
-                  name="message"
-                  required
-                  rows={4}
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Tell us about the project goals, budget timeline, and resources..."
-                  className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-4 py-3.5 text-white placeholder-zinc-700 text-sm focus:outline-none focus:border-amber-400/40 focus:ring-1 focus:ring-amber-400/30 transition-all font-sans font-medium resize-none"
-                />
+
+                {/* Social Buttons */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <SocialBtn
+                    icon={<Twitter size={13} />}
+                    bgColor="bg-gray-100"
+                    textColor="text-gray-800"
+                    href="https://twitter.com"
+                  />
+                  <SocialBtn
+                    icon={<Circle size={13} />}
+                    bgColor="bg-pink-100"
+                    textColor="text-pink-500"
+                    href="https://dribbble.com"
+                  />
+                  <SocialBtn
+                    icon={<Instagram size={13} />}
+                    bgColor="bg-orange-100"
+                    textColor="text-orange-400"
+                    href="https://instagram.com"
+                  />
+                  <SocialBtn
+                    icon={<Linkedin size={13} />}
+                    bgColor="bg-blue-100"
+                    textColor="text-blue-600"
+                    href="https://linkedin.com"
+                  />
+                </div>
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !formData.name || !formData.email || !formData.message}
-                  className={`w-full group px-6 py-4 rounded-xl font-bold uppercase tracking-widest text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-98 cursor-pointer ${
-                    isSubmitting
-                      ? "bg-zinc-900 border border-zinc-800 text-zinc-500 cursor-wait"
-                      : "bg-amber-400 text-black hover:bg-amber-300 shadow-xl"
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span>Transmitting Grid...</span>
-                      <div className="w-4 h-4 border-2 border-zinc-500 border-t-white rounded-full animate-spin" />
-                    </>
-                  ) : (
-                    <>
-                      <span>Transmit Message</span>
-                      <Send className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    </>
-                  )}
-                </button>
+              {/* OR Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-gray-400 font-medium text-sm">OR</span>
+                <div className="flex-1 h-px bg-gray-200" />
               </div>
-            </form>
-          </motion.div>
+
+              {/* Conditionally Render Form or Success State */}
+              {sent ? (
+                <div className="py-6 gap-3 flex flex-col items-center justify-center text-center">
+                  <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-xl text-green-600 font-semibold">
+                    ✓
+                  </div>
+                  <h4 className="text-base font-semibold text-gray-900">
+                    You're all set!
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    Expect a reply within 24 hours.
+                  </p>
+                  
+                  {/* Subtle link to enable sending another message */}
+                  <button
+                    onClick={() => {
+                      setSent(false);
+                      setName("");
+                      setEmail("");
+                      setMessage("");
+                      setSelected([]);
+                    }}
+                    className="mt-4 text-xs text-blue-600 hover:underline"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-black">
+                      Tell us about your vision
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="flex-1 min-w-0 text-sm px-3 py-2.5 rounded-xl border border-gray-200 bg-transparent placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-black"
+                      />
+                      <input
+                        type="email"
+                        required
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="flex-1 min-w-0 text-sm px-3 py-2.5 rounded-xl border border-gray-200 bg-transparent placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-black"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Textarea */}
+                  <textarea
+                    rows={4}
+                    placeholder="What are you looking to build or improve..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full text-sm px-3 py-2.5 rounded-xl border border-gray-200 bg-transparent placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-black resize-none"
+                  />
+
+                  {/* Service tags section */}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-gray-500">
+                      I need help with...
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {SERVICES.map((service) => {
+                        const isSelected = selected.includes(service);
+                        return (
+                          <button
+                            key={service}
+                            type="button"
+                            onClick={() => handleTagToggle(service)}
+                            className={`text-xs font-medium px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                              isSelected
+                                ? "bg-gray-100 text-black border-black"
+                                : "bg-white text-gray-700 border-gray-200 hover:border-gray-400"
+                            }`}
+                          >
+                            {service}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={sending || !name.trim() || !email.trim()}
+                    className="w-full bg-black text-white text-sm font-semibold py-3 rounded-2xl hover:bg-gray-800 transition-colors disabled:opacity-60 cursor-pointer"
+                  >
+                    {sending ? "Sending..." : "Send my message"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+
         </div>
 
       </div>
