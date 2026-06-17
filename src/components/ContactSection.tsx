@@ -90,6 +90,8 @@ export const ContactSection: React.FC = () => {
           muted
           loop
           playsInline
+          preload="metadata"
+          poster="/src/assets/images/contact_video_poster_1781670267509.jpg"
           className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
           src={VIDEO_URL}
         />

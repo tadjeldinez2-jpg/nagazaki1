@@ -100,7 +100,8 @@ export const AboutSection: React.FC = () => {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
+            poster="/src/assets/images/about_video_poster_1781670280076.jpg"
             className="absolute inset-0 w-full h-full object-cover z-0"
             src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_080021_d598092b-c4c2-4e53-8e46-94cf9064cd50.mp4"
           />

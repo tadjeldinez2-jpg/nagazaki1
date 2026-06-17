@@ -177,7 +177,8 @@ const ServiceRow: React.FC<{ service: ServiceItem; index: number }> = ({ service
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
+              poster="/src/assets/images/service_video_poster_1781670306811.jpg"
               className="w-full h-full object-cover"
             />
             {/* Linear gradient overlay: keeps the video elements extremely sharp and crisp while maintaining outstanding text contrast */}

@@ -116,6 +116,8 @@ export const FloatingNav: React.FC = () => {
                   loop
                   muted
                   playsInline
+                  preload="metadata"
+                  poster="/src/assets/images/avatar_video_poster_1781670293197.jpg"
                   className="w-full h-full object-cover scale-[1.6] origin-center"
                 />
               </div>
