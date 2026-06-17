@@ -122,7 +122,8 @@ export const HeroSection: React.FC = () => {
         loop
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
+        poster="/src/assets/images/hero_video_poster_1781669864691.jpg"
         className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4"
       />
